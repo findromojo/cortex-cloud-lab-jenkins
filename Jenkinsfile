@@ -33,26 +33,36 @@ pipeline {
             }
         }
 
-        stage('Download cortexcli') {
-            steps {
-                script {
-                    def response = sh(script: """
-                        curl --location '${env.CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64' \
-                          --header 'Authorization: ${env.CORTEX_API_KEY}' \
-                          --header 'x-xdr-auth-id: ${env.CORTEX_API_KEY_ID}' \
-                          --silent
-                    """, returnStdout: true).trim()
+        stage('Download Cortex CLI') {
+    environment {
+        CORTEX_API_KEY_ID = credentials('cortex-api-key-id')
+        CORTEX_API_KEY    = credentials('cortex-api-key')
+    }
+    steps {
+        sh '''
+          set -e
+          
+          # Query download link safely using environment variables
+          RESPONSE=$(curl -s --location "https://api-japac-ccr.xdr.jp.paloaltonetworks.com/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+            -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
+            -H "Authorization: ${CORTEX_API_KEY}")
 
-                    def downloadUrl = sh(script: """echo '${response}' | jq -r '.signed_url'""", returnStdout: true).trim()
+          # Extract URL
+          DOWNLOAD_URL=$(echo "$RESPONSE" | jq -r '.signed_url // empty')
 
-                    sh """
-                        curl -o cortexcli '${downloadUrl}'
-                        chmod +x cortexcli
-                        ./cortexcli --version
-                    """
-                }
-            }
-        }
+          # Validate output before running curl
+          if [ -z "$DOWNLOAD_URL" ]; then
+            echo "ERROR: Failed to retrieve download URL from Cortex API."
+            echo "API Response: $RESPONSE"
+            exit 1
+          fi
+
+          # Download and set permissions
+          curl -s -o cortexcli "$DOWNLOAD_URL"
+          chmod +x cortexcli
+        '''
+    }
+}
 
         stage('Run Scan') {
         // Replace the repo-id with your repository like: owner/repo
