@@ -35,8 +35,8 @@ pipeline {
 
         stage('Download Cortex CLI') {
     environment {
-        CORTEX_API_KEY_ID = credentials('cortex-api-key-id')
-        CORTEX_API_KEY    = credentials('cortex-api-key')
+        CORTEX_API_KEY_ID = credentials('CORTEX_API_KEY_ID')
+        CORTEX_API_KEY    = credentials('CORTEX_API_KEY')
     }
     steps {
         sh '''
