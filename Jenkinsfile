@@ -11,7 +11,7 @@ pipeline {
     environment {
         CORTEX_API_KEY = credentials('CORTEX_API_KEY')
         CORTEX_API_KEY_ID = credentials('CORTEX_API_KEY_ID')
-        CORTEX_API_URL = 'https://api-tac-x5.xdr.sg.paloaltonetworks.com'
+        CORTEX_API_URL = 'https://api-japac-ccr.xdr.jp.paloaltonetworks.com'
     }
 
     stages {
