@@ -67,7 +67,7 @@ pipeline {
                       --api-key-id "${env.CORTEX_API_KEY_ID}" \
                       code scan \
                       --directory "\$(pwd)" \
-                      --repo-id smuruhesan/cortex-cloud-lab \
+                      --repo-id findromojo/cortex-cloud-lab-jenkins \
                       --branch "main" \
                       --source "JENKINS" \
                       --create-repo-if-missing
